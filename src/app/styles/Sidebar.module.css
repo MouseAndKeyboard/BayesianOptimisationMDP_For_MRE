@@ -1,0 +1,61 @@
+/* app/styles/Sidebar.module.css */
+
+.sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    padding: 1rem;
+    overflow-y: auto;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000;
+  }
+  
+  .left {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+  }
+  
+  .right {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    transform: translateX(100%);
+  }
+  
+  .active {
+    transform: translateX(0);
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+  
+  @media (min-width: 769px) {
+    .sidebar.left {
+      transform: translateX(0);
+      position: relative;
+      box-shadow: none;
+    }
+  
+    .sidebar.right {
+      transform: translateX(0);
+      position: relative;
+      box-shadow: none;
+    }
+  
+    .menuButtonLeft,
+    .menuButtonRight {
+      display: none;
+    }
+  }
+  
