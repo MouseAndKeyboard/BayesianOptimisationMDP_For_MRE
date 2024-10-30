@@ -5,7 +5,7 @@ import Sidebar from "./components/Sidebar";
 import LayerToggle from "./components/LayerToggle";
 import styles from "./styles/Home.module.css";
 import { FiMenu } from "react-icons/fi";
-import { Noise } from "noisejs";
+import NoiseJS from "noisejs";
 import { Matrix, CholeskyDecomposition } from "ml-matrix";
 
 interface ClickedPoint {
@@ -15,14 +15,14 @@ interface ClickedPoint {
 }
 
 const HomePage: React.FC = () => {
-  const mapCanvasRef = useRef<HTMLCanvasElement>(null);
-  const maskCanvasRef = useRef<HTMLCanvasElement>(null);
-  const interactionCanvasRef = useRef<HTMLCanvasElement>(null);
-  const maskDataCanvasRef = useRef<HTMLCanvasElement>(null);
-  const trueCanvasRef = useRef<HTMLCanvasElement>(null);
-  const gpMeanCanvasRef = useRef<HTMLCanvasElement>(null);
-  const gpVarianceCanvasRef = useRef<HTMLCanvasElement>(null);
-  const acquisitionCanvasRef = useRef<HTMLCanvasElement>(null);
+  const mapCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const maskCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const interactionCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const maskDataCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const trueCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const gpMeanCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const gpVarianceCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const acquisitionCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [canvasSize, setCanvasSize] = useState<{
     width: number;
@@ -46,12 +46,12 @@ const HomePage: React.FC = () => {
   // ADD: State variable to store the random field data
   const [fieldData, setFieldData] = useState<number[][] | null>(null);
 
-  const kernel = (x1, y1, x2, y2, lengthScale, sigmaF) => {
+  const kernel = (x1: number, y1: number, x2: number, y2: number, lengthScale: number, sigmaF: number) => {
     const sqdist = (x1 - x2) ** 2 + (y1 - y2) ** 2;
     return sigmaF ** 2 * Math.exp((-0.5 * sqdist) / lengthScale ** 2);
   };
 
-  const computeAcquisitionFunction = (gpMeanData, gpVarianceData, y_train) => {
+  const computeAcquisitionFunction = (gpMeanData: number[][], gpVarianceData: number[][], y_train: number[]) => {
     const acquisitionData = [];
     const yMax = Math.max(...y_train);
     const width = gpMeanData[0].length;
@@ -72,14 +72,14 @@ const HomePage: React.FC = () => {
   };
 
   // Helper functions for PDF and CDF of the standard normal distribution
-  const pdf = (x) => (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
+  const pdf = (x: number) => (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
 
-  const cdf = (x) => {
+  const cdf = (x: number) => {
     return (1 + erf(x / Math.sqrt(2))) / 2;
   };
 
   // Error function approximation
-  const erf = (x) => {
+  const erf = (x: number) => {
     // Abramowitz and Stegun formula 7.1.26 approximation
     const a1 = 0.254829592;
     const a2 = -0.284496736;
@@ -155,7 +155,7 @@ const HomePage: React.FC = () => {
         console.error("Cholesky decomposition failed:", error);
         return;
       }
-      const L = chol.lowerTriangularMatrix;
+      // const L = chol.lowerTriangularMatrix;
 
       // Compute the cross-covariance matrix K_s between training and test points
       const K_s = Matrix.zeros(X_train.length, X_test.length);
@@ -452,6 +452,8 @@ const HomePage: React.FC = () => {
     loadMaskAndFunction();
   }, [canvasSize, showMask]);
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const Noise = (NoiseJS as any).Noise;
   const noise = useRef(new Noise(Math.random())).current;
 
   useEffect(() => {
@@ -503,7 +505,7 @@ const HomePage: React.FC = () => {
         if (val > maxVal) maxVal = val;
       }
     }
-    const normalizedField = [];
+    const normalizedField: number[][] = [];
     for (let y = 0; y < height; y++) {
       normalizedField[y] = [];
       for (let x = 0; x < width; x++) {
@@ -624,6 +626,9 @@ const HomePage: React.FC = () => {
     // Get the pixel data at the clicked location
     const pixelData = maskCtx.getImageData(canvasX, canvasY, 1, 1).data;
     const [r, g, b, a] = pixelData;
+
+    const result = g + b + a;
+    console.log(result);
 
     // Determine if the pixel corresponds to ocean or land
     if (r < 128) {
